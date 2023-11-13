@@ -1,8 +1,5 @@
 #include "WinAPP.h"
 
-
-
-
 WinApp::~WinApp()
 {
 }
@@ -14,6 +11,10 @@ void WinApp::Initialize()
 
 void WinApp::Update()
 {
+}
+
+HWND WinApp::GetHWND() {
+	return hwnd;
 }
 
 bool WinApp::ProcessMessage()
@@ -69,7 +70,7 @@ void WinApp::CreateGameWindow()
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
 	//ウィンドウの生成
-	HWND hwnd = CreateWindow(
+	 hwnd = CreateWindow(
 		wc.lpszClassName,//利用するクラス名
 		L"CG2",//タイトルバーの文字(なんでもいい)
 		WS_OVERLAPPEDWINDOW,//よく見るウィンドウスタイル
@@ -84,6 +85,14 @@ void WinApp::CreateGameWindow()
 	);
 	//ウィンドウを表示する
 	ShowWindow(hwnd, SW_SHOW);
+#ifdef _DEBUG
+	ID3D12Debug1* debugController = nullptr;
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+		// デバッグレイヤーを有効化する
+		debugController->EnableDebugLayer();
+		// さらにGPU側でもチェックを行うようにする
+		debugController->SetEnableGPUBasedValidation(TRUE);
+		debugController->Release();
+	}
+#endif
 }
-
-

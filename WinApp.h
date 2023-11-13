@@ -1,6 +1,7 @@
 #pragma once
 #include<Windows.h>
 #include<cstdint>
+#include <d3d12sdklayers.h>
 
 class WinApp
 {
@@ -27,12 +28,14 @@ class WinApp
 	const int32_t kClientWidth = 1280;
 	const int32_t kClientHeight = 720;
 
+	HWND GetHWND();
+
 private:
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	void CreateGameWindow();
     WNDCLASS wc{};
-
+	HWND hwnd;
 	
 };
 
