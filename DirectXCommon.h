@@ -9,6 +9,7 @@
 class DirectXCommon
 {
 public:
+	~DirectXCommon();
 	void Initialize(WinApp*winApp_);
 	void Upadate();
 	
@@ -18,6 +19,8 @@ public:
 	void PostDraw();
 
 private:
+	//SwapChainからResourceを引っ張ってくる
+	ID3D12Resource* swapChainResources[2] = { nullptr };
 	IDXGISwapChain4* swapChain;
 	ID3D12GraphicsCommandList* commandList;
 	ID3D12CommandQueue* commandQueue;
@@ -34,6 +37,15 @@ private:
 	IDXGIAdapter4* useAdapter = nullptr;
 	//ディスクリプタヒープの生成
 	ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
+	//TranaitionBarrie野設定
+	D3D12_RESOURCE_BARRIER barrier{};
+
+	//初期値0でFenceを作る
+	ID3D12Fence* fence = nullptr;
+	uint64_t fenceValue = 0;
+	//FenceのSignalを待つためのイベントを作成する
+	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	
 private:
 	/// <summary>
 	/// DXGIFactoryの生成
@@ -59,5 +71,9 @@ private:
 	/// DescriptorHeapを生成する
 	/// </summary>
 	void SetUpDescriptorHeap();
+	/// <summary>
+	/// FenceとEventを生成する
+	/// </summary>
+	void SetUpFence();
 };
 

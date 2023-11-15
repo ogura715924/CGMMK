@@ -36,6 +36,6 @@ private:
 	void CreateGameWindow();
     WNDCLASS wc{};
 	HWND hwnd;
-	
+	ID3D12Debug1* debugController = nullptr;
 };
 

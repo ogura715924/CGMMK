@@ -2,11 +2,16 @@
 
 WinApp::~WinApp()
 {
+#ifdef _DEBUG
+	debugController->Release();
+#endif
+	CloseWindow(hwnd);
 }
 
 void WinApp::Initialize()
 {
 	CreateGameWindow();
+
 }
 
 void WinApp::Update()
@@ -86,13 +91,12 @@ void WinApp::CreateGameWindow()
 	//ウィンドウを表示する
 	ShowWindow(hwnd, SW_SHOW);
 #ifdef _DEBUG
-	ID3D12Debug1* debugController = nullptr;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		// デバッグレイヤーを有効化する
 		debugController->EnableDebugLayer();
 		// さらにGPU側でもチェックを行うようにする
 		debugController->SetEnableGPUBasedValidation(TRUE);
-		debugController->Release();
+		//debugController->Release();
 	}
 #endif
 }
