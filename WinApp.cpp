@@ -18,10 +18,6 @@ void WinApp::Update()
 {
 }
 
-HWND WinApp::GetHWND() {
-	return hwnd;
-}
-
 bool WinApp::ProcessMessage()
 {
 

@@ -4,6 +4,7 @@
 #include"Logger.h"
 #include"DirectXCommon.h"
 #include<dxgidebug.h>
+#include"Triangle.h"
 #pragma comment(lib,"dxguid.lib")
 
 
@@ -13,19 +14,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	WinApp* winApp_ = new WinApp;
 	winApp_->Initialize();
 	
-	DirectXCommon* directXCommand_ = new DirectXCommon;
+	DirectXCommon* directXCommand_ = nullptr;
 	directXCommand_->Initialize(winApp_);
 
+	Triangle* triangle_ = nullptr;
+	triangle_->Initialize();
 	
 	
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
 	while (winApp_->ProcessMessage() == false) {
+		triangle_->Update();
 		directXCommand_->PreDraw();
 		directXCommand_->PostDraw();
+		triangle_->Draw();
 	}
 	delete winApp_;
 	delete directXCommand_;
+	delete triangle_;
 	//出力ウィンドウへの文字出力
 	OutputDebugStringA("Hello,DirectX!\n");
 
