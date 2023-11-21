@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	WinApp* winApp_ = new WinApp;
 	winApp_->Initialize();
 	
-	DirectXCommon* directXCommand_ = new DirectXCommon;
+	DirectXCommon* directXCommand_ = nullptr;
 	directXCommand_->Initialize(winApp_);
 
 	

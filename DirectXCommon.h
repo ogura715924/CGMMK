@@ -5,6 +5,9 @@
 #include "Logger.h"
 #include <format>
 #include"WinApp.h"
+#include<dxcapi.h>
+
+#pragma comment(lib,"dxcompiler.lib")
 
 class DirectXCommon
 {
@@ -46,6 +49,26 @@ private:
 	//FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	
+	//現時点でincludeはしないが、includeに対応するための設定を行っておく
+	IDxcIncludeHandler* includeHandeler = nullptr;
+	const std::wstring& filePath;
+	//Compilerに使用するProfile
+	const wchar_t* profile;
+	//初期化で生成したものを3つ
+	IDxcIncludeHandler* includeHandler;
+
+	//dxcCompilerを初期化
+	IDxcUtils* dxcUtils = nullptr;
+	IDxcCompiler3* dxcCompiler = nullptr;
+	// //hlslファイルを読む
+	IDxcBlobEncoding* shaderSource = nullptr;
+	//実際にShaderをコンパイルする
+	IDxcResult* shaderResult = nullptr;
+	//警告・エラーが出たらログに出して止める
+	IDxcBlobUtf8* shaderError = nullptr;
+	//コンパイル結果から実行用のバイナリ部分を取得
+	IDxcBlob* shaderBlob = nullptr;
+
 private:
 	/// <summary>
 	/// DXGIFactoryの生成
@@ -75,5 +98,17 @@ private:
 	/// FenceとEventを生成する
 	/// </summary>
 	void SetUpFence();
+	/// <summary>
+	/// CompileShader関数
+	/// </summary>
+	IDxcBlob* SetUpCompileShader(
+		//CompilerするShaderファイルへのパス
+		const std::wstring& filePath,
+		//Compilerに使用するProfile
+		const wchar_t* profile,
+		//初期化で生成したものを3つ
+		IDxcUtils* dxcUtils,
+		IDxcCompiler3* dxcCompiler,
+		IDxcIncludeHandler* includeHandler);
 };
 
