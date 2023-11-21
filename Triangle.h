@@ -16,7 +16,7 @@ public:
 	};
 	
 private:
-	DirectXCommon directXCommon_ ;
+	DirectXCommon* directXCommon_ ;
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 
