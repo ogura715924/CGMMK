@@ -48,49 +48,70 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	assert(useAdapter != nullptr);
 
 	SetUpD3D12Device();
-
-	SetUpCommandQueue();
-
-	SetUpCommandList();
-
-	SetUpSwapChain( winApp_);
-	
-	SetUpDescriptorHeap();
-
-	SetUpFence();
-	
-	SetUpCompileShader(filePath, profile, dxcUtils, dxcCompiler, includeHandler);
-
-
-	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
-	//うまく取得できなければ起動できない
-	assert(SUCCEEDED(hr));
-	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
-	assert(SUCCEEDED(hr));
-
-	//RTVの設定
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2dテクスチャとして書き込む
-	//ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStarHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	//まず1つめを作る。1つめは最初のところに作る。作る場所をこちらで指定してあげる必要がある
-	rtvHandles[0] = rtvStarHandle;
-	device->CreateRenderTargetView(swapChainResources[0], &rtvDesc, rtvHandles[0]);
-	//2つ目のディスクリプタハンドルを得る(自力で)
-	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//2つ目作る
-	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
-
-	//dxcCompilerを初期化
-	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-	hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-	assert(SUCCEEDED(hr));
-
-	//現時点でincludeはしないが、includeに対応するための設定を行っておく
-	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandeler);
-	assert(SUCCEEDED(hr));
-   
+//
+//	SetUpCommandQueue();
+//
+//	SetUpCommandList();
+//
+//	SetUpSwapChain( winApp_);
+//	
+//	SetUpDescriptorHeap();
+//
+//	SetUpFence();
+//	
+//	SetUpCompileShader(filePath, profile, dxcUtils, dxcCompiler, includeHandler);
+//
+//
+//	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
+//	//うまく取得できなければ起動できない
+//	assert(SUCCEEDED(hr));
+//	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
+//	assert(SUCCEEDED(hr));
+//
+//	//RTVの設定
+//	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+//	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
+//	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2dテクスチャとして書き込む
+//	//ディスクリプタの先頭を取得する
+//	D3D12_CPU_DESCRIPTOR_HANDLE rtvStarHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+//	//まず1つめを作る。1つめは最初のところに作る。作る場所をこちらで指定してあげる必要がある
+//	rtvHandles[0] = rtvStarHandle;
+//	device->CreateRenderTargetView(swapChainResources[0], &rtvDesc, rtvHandles[0]);
+//	//2つ目のディスクリプタハンドルを得る(自力で)
+//	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+//	//2つ目作る
+//	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
+//
+//	//dxcCompilerを初期化
+//	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
+//	hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
+//	assert(SUCCEEDED(hr));
+//
+//	//現時点でincludeはしないが、includeに対応するための設定を行っておく
+//	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandeler);
+//	assert(SUCCEEDED(hr));
+//   
+//	//InputLayout
+//	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
+//	inputElementDescs[0].SemanticName = "POSITION";
+//	inputElementDescs[0].SemanticIndex = 0;
+//	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+//	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+//	inputLayoutDesc.pInputElementDescs = inputElementDescs;
+//	inputLayoutDesc.NumElements = _countof(inputElementDescs);
+//
+////全ての色要素を書き込む
+//	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+//
+//	//裏面(時計回り)を表示しない
+//	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+//	//三角形の中を塗りつぶす
+//	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+//
+//	assert(vertexShaderBlob != nullptr);
+//
+//	
+//	assert(pixelShaderBlob != nullptr);
 
 }
 
@@ -319,7 +340,7 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 	//読めなかったら止める
 	assert(SUCCEEDED(hr));
 	//読み込んだファイルの内容を設定する
-	DxcBuffer shaderSourceBuffer;
+	DxcBuffer shaderSourceBuffer{};
 	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
 	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
 	shaderSourceBuffer.Encoding = DXC_CP_UTF8;
@@ -384,8 +405,55 @@ void DirectXCommon::SetUpRootAignature()
 		Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
-	//バイナリを基に作成
-	ID3D12RootSignature* rootSignature = nullptr;
 	hr = device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::SetUpPSO()
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+	graphicsPipelineStateDesc.pRootSignature = rootSignature;//RootSignature
+	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;//InputLayout
+	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),vertexShaderBlob->GetBufferSize() };//VertexShader
+	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),pixelShaderBlob->GetBufferSize() };//PixelShader
+	graphicsPipelineStateDesc.BlendState = blendDesc;//BlendState
+	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;//RasterrizerState
+	//書き込むRTVの情報
+	graphicsPipelineStateDesc.NumRenderTargets = 1;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+	//利用するトポロジ	(形状)のタイプ。三角形
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	//どのように画面に色を打ち込むかの設定(気にしなくていい)
+	graphicsPipelineStateDesc.SampleDesc.Count = 1;
+	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	//実際に生成
+	ID3D12PipelineState* graphicsPipelineState = nullptr;
+	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::SetUpVertexResource()
+{
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResourceDesc{};
+	//バッファリソース。テクスチャの場合はまた別の設定をする
+	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResourceDesc. Width = sizeof(Vector4) * 3;//リソースのサイズ。今回はVectir4を3頂点分
+	//バッファの場合はこれからは1にする決まり
+	vertexResourceDesc.Height = 1;
+	vertexResourceDesc.DepthOrArraySize = 1;
+	vertexResourceDesc.MipLevels = -1;
+	vertexResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする決まり
+	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	//実際に頂点リソースを作る
+	ID3D12Resource* vertexResorce= nullptr;
+	hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,IID_PPV_ARGS(&vertexResorce));
+	assert(SUCCEEDED(hr));
+
+
 }

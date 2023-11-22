@@ -6,6 +6,7 @@
 #include <format>
 #include"WinApp.h"
 #include<dxcapi.h>
+#include"MyMath.h"
 
 #pragma comment(lib,"dxcompiler.lib")
 
@@ -68,6 +69,16 @@ private:
 	IDxcBlobUtf8* shaderError = nullptr;
 	//コンパイル結果から実行用のバイナリ部分を取得
 	IDxcBlob* shaderBlob = nullptr;
+	//バイナリを基に作成
+	ID3D12RootSignature* rootSignature = nullptr;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	//Shaderをコンパイルする
+	IDxcBlob* vertexShaderBlob = SetUpCompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandeler);
+	IDxcBlob* pixelShaderBlob = SetUpCompileShader(L"Object3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandeler);
+	//BlendState野設定
+	D3D12_BLEND_DESC blendDesc{};
+	//RasiterizerStateの設定
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
 private:
 	/// <summary>
@@ -114,5 +125,13 @@ private:
 	/// RoorSignatureを生成する
 	/// </summary>
 	void SetUpRootAignature();
+	/// <summary>
+	/// PSOを生成する
+	/// </summary>
+	void SetUpPSO();
+	/// <summary>
+	/// VertexResorceを生成する
+	/// </summary>
+	void SetUpVertexResource();
 };
 

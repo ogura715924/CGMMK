@@ -21,8 +21,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
 	while (winApp_->ProcessMessage() == false) {
-		directXCommand_->PreDraw();
-		directXCommand_->PostDraw();
+	//	directXCommand_->PreDraw();
+		//directXCommand_->PostDraw();
 	}
 	delete winApp_;
 	delete directXCommand_;
