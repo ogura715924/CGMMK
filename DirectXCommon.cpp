@@ -61,6 +61,7 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	
 	SetUpCompileShader(filePath, profile, dxcUtils, dxcCompiler, includeHandler);
 
+
 	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
 	//うまく取得できなければ起動できない
 	assert(SUCCEEDED(hr));
