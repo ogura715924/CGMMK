@@ -110,5 +110,9 @@ private:
 		IDxcUtils* dxcUtils,
 		IDxcCompiler3* dxcCompiler,
 		IDxcIncludeHandler* includeHandler);
+	/// <summary>
+	/// RoorSignatureを生成する
+	/// </summary>
+	void SetUpRootAignature();
 };
 

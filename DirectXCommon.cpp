@@ -347,14 +347,13 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 	//3.警告・エラーが出ていないか確認する
 	// //hlslファイルを読む
 	//警告・エラーが出たらログに出して止める
-	if (shaderResult != 0) {
 		shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
 		if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
 			Log(shaderError->GetStringPointer());
 			//警告・エラーダメ絶対
 			assert(false);
 		}
-	}
+	
 
 	//4.Compile結果を受け取って返す
 	//コンパイル結果から実行用のバイナリ部分を取得
@@ -370,4 +369,23 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 	//実行用のバイナリを返却
 	return shaderBlob;
 
+}
+
+void DirectXCommon::SetUpRootAignature()
+{
+	//RootSignature作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	//シリアライズしてバイナリにする
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	if (FAILED(hr)) {
+		Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		assert(false);
+	}
+	//バイナリを基に作成
+	ID3D12RootSignature* rootSignature = nullptr;
+	hr = device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	assert(SUCCEEDED(hr));
 }
