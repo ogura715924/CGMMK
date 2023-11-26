@@ -83,11 +83,13 @@
     <ClCompile Include="DirectXCommon.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyMath.cpp" />
     <ClCompile Include="WinApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXCommon.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="MyMath.h" />
     <ClInclude Include="WinApp.h" />
   </ItemGroup>
   <ItemGroup>

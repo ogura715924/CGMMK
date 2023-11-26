@@ -6,6 +6,8 @@
 #include <format>
 #include"WinApp.h"
 #include<dxcapi.h>
+#include"MyMath.h"
+
 #pragma comment(lib,"dxcompiler.lib")
 
 class DirectXCommon
@@ -50,7 +52,6 @@ private:
 	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	
 	IDxcUtils* dxcUtils = nullptr;
-	IDxcCompiler* dxcCompiler = nullptr;
 	IDxcIncludeHandler* includeHandler;
 	// //hlslファイルを読む
 	IDxcBlobEncoding* shaderSource = nullptr;
@@ -65,6 +66,27 @@ private:
 	//シリアライズしてバイナリにする
 	ID3DBlob* signatureBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
+	IDxcCompiler3* dxcCompiler = nullptr;
+	//const std::wstring& filePath;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+
+	//BlendStateの設定
+	D3D12_BLEND_DESC blendDesc{};
+	//RasiterzerStateの設定
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
+	IDxcBlob* vertexShaderBlob;
+	IDxcBlob* pixelShaderBlob;
+	//実際に頂点リソースを作る
+	ID3D12Resource* vertexResource;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+	ID3D12PipelineState* graphicsPipelineState = nullptr;
+	//ビューポート
+	D3D12_VIEWPORT viewport{};
+	//シザー短形
+	D3D12_RECT scissorRect{};
+	//頂点バッファービューを作成する
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+
 
 private:
 	/// <summary>
@@ -111,5 +133,13 @@ private:
 	/// RoorSignatureを生成する
 	/// </summary>
 	void SetUpRootSignature();
+	/// <summary>
+	/// PSOを生成する
+	/// </summary>
+	void SetUpPSO();
+	/// <summary>
+	/// VertexResourceを生成する
+	/// </summary>
+	void SetUpVertexResource();
 };
 
