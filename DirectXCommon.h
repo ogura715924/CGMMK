@@ -49,7 +49,7 @@ private:
 	ID3D12Fence* fence = nullptr;
 	uint64_t fenceValue = 0;
 	//FenceのSignalを待つためのイベントを作成する
-	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	HANDLE fenceEvent =nullptr;
 	
 	IDxcUtils* dxcUtils = nullptr;
 	IDxcIncludeHandler* includeHandler;

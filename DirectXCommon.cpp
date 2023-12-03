@@ -71,16 +71,6 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 
 	SetUpDescriptorHeap();
 
-	SetUpFence();
-
-	SetUpRootSignature();
-
-	SetUpRootSignature();
-	
-
-	SetUpVertexResource();
-
-
 	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
 	//うまく取得できなければ起動できない
 	assert(SUCCEEDED(hr));
@@ -101,6 +91,7 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	//2つ目作る
 	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
 
+	SetUpFence();
 
 	//dxcCompilerを初期化
 	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
@@ -111,6 +102,8 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
 	assert(SUCCEEDED(hr));
 
+	SetUpRootSignature();
+
 	//InputLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
@@ -119,7 +112,7 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
-
+	
 	//全ての色要素を書き込む
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
@@ -129,25 +122,36 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//Shaderをコンパイルする
-	 vertexShaderBlob = SetUpCompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
+	vertexShaderBlob = SetUpCompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(vertexShaderBlob != nullptr);
-	
+
 	pixelShaderBlob = SetUpCompileShader(L"Object3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(pixelShaderBlob != nullptr);
+
 	SetUpPSO();
 
+	SetUpVertexResource();
+
+	
+	//リソースの先頭のアドレスから使う
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点3つ分のサイズ
+	vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
+	//1頂点当たりのサイズ
+	vertexBufferView.SizeInBytes = sizeof(Vector4);
+
 	//頂点リソースにデータを書き込む
-	Vector4* vertexData= nullptr;
+	Vector4* vertexData = nullptr;
 	//書き込むためのアドレスを取得
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	//左下
 	vertexData[0] = { -0.5f,-0.5f,0.0f,1.0f };
 	//上
-	vertexData[1] = { 0.0f,0.5f,0.0,1.0f };
+	vertexData[1] = { 0.0f,0.5f,0.0f,1.0f };
 	//右下
 	vertexData[2] = { 0.5f,-0.5f,0.0f,1.0f };
 
-	
+	//ビューポート
 	//クライアントの領域のサイズと一緒にして画面全体に表示
 	viewport.Width = (float)winApp_->kClientWidth;
 	viewport.Height = (float)winApp_->kClientHeight;
@@ -155,16 +159,13 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-
-	
+	//シザー短形
 	//基本的にビューポートと同じ短径が構成されるようにする
 	scissorRect.left = 0;
 	scissorRect.right = winApp_->kClientWidth;
 	scissorRect.top = 0;
 	scissorRect.bottom = winApp_->kClientHeight;
-
 };
-
 
 void DirectXCommon::Upadate()
 {
@@ -189,13 +190,6 @@ void DirectXCommon::PreDraw()
 	//TransitionBarrierを張る
 	commandList->ResourceBarrier(1, &barrier);
 
-	//リソースの先頭のアドレスから使う
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	//使用するリソースのサイズは頂点3つ分のサイズ
-	vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
-	//1頂点当たりのサイズ
-	vertexBufferView.SizeInBytes = sizeof(Vector4);
-
 	//描画先のRTVを設定する
 	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
 	//指定した色で画面全体をクリアする
@@ -213,17 +207,18 @@ void DirectXCommon::PreDraw()
 	//描画!(DrawCall/ドローコール。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawInstanced(3, 1, 0, 0);
 	
+}
+
+void DirectXCommon::PostDraw()
+{
+
 	//画面に描く処理は全て終わり、画面に移すので、状態遷移
 	//今回はRenderTargetからPresentにする
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	//TransitionBarrierを張る
 	commandList->ResourceBarrier(1, &barrier);
-	
-}
 
-void DirectXCommon::PostDraw()
-{
 	//コマンドリストの内容を確定させる。全てのコマンドを積んでからCloseすること
 	hr = commandList->Close();
 	assert(SUCCEEDED(hr));
@@ -238,6 +233,7 @@ void DirectXCommon::PostDraw()
 	fenceValue++;
 	//GPUがここまでたどり着いたときに,fenceの値を指定した値に代入できるようにSignalを送る
 	commandQueue->Signal(fence, fenceValue);
+	
 
 	//Fenceの値が指定したSignal値にたどり着いてるか確認する
 	//GetCompletedValuの初期値はfence作成時に渡した初期値
@@ -254,7 +250,6 @@ void DirectXCommon::PostDraw()
 	hr = commandList->Reset(commandAllocator, nullptr);
 	assert(SUCCEEDED(hr));
 
-	
 }
 
 void DirectXCommon::SetUpDXGIFactory()
@@ -380,14 +375,12 @@ void DirectXCommon::SetUpDescriptorHeap()
 
 void DirectXCommon::SetUpFence()
 {
-	
-
 	hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 	assert(SUCCEEDED(hr));
 
 	//FenceのSignalを待つためのイベントを作成する
+	fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fenceEvent != nullptr);
-
 }
 
 IDxcBlob* DirectXCommon::SetUpCompileShader(
