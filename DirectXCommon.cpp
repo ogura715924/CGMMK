@@ -40,57 +40,25 @@ DirectXCommon::~DirectXCommon()
 
 void DirectXCommon::Initialize(WinApp* winApp_)
 {
+	// DXGIFactoryの生成
 	SetUpDXGIFactory();
 
-
-	//良い順にアダプタを頼む
-	for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) != DXGI_ERROR_NOT_FOUND; i++) {
-		//アダプターの情報を取得する
-		DXGI_ADAPTER_DESC3 adapterDesc{};
-		hr = useAdapter->GetDesc3(&adapterDesc);
-		assert(SUCCEEDED(hr));//取得できないのは一大事
-		//ソフトウェアアダプタでなければ採用!
-		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
-			//採用したアダプタの情報をログに出力。wstringの方なので注意
-			Log(ConvertString(std::format(L"Use Adapater:{}\n", adapterDesc.Description)));
-
-			break;
-		}
-		useAdapter = nullptr;//ソフトウェアアダプタの場合は見なかったことにする
-	}
-	//適切なアダプタが見つからなかったので起動できない
-	assert(useAdapter != nullptr);
-
+	// D3D12Deviceの生成
 	SetUpD3D12Device();
 
+	// CommandQueueを生成する
 	SetUpCommandQueue();
 
+	// CommandListを生成する
 	SetUpCommandList();
 
+	// SwapChainを生成する
 	SetUpSwapChain(winApp_);
 
+	// DescriptorHeapを生成する
 	SetUpDescriptorHeap();
 
-	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
-	//うまく取得できなければ起動できない
-	assert(SUCCEEDED(hr));
-	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
-	assert(SUCCEEDED(hr));
-
-	//RTVの設定
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2dテクスチャとして書き込む
-	//ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStarHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	//まず1つめを作る。1つめは最初のところに作る。作る場所をこちらで指定してあげる必要がある
-	rtvHandles[0] = rtvStarHandle;
-	device->CreateRenderTargetView(swapChainResources[0], &rtvDesc, rtvHandles[0]);
-	//2つ目のディスクリプタハンドルを得る(自力で)
-	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//2つ目作る
-	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
-
+	// FenceとEventを生成する
 	SetUpFence();
 
 	//dxcCompilerを初期化
@@ -102,6 +70,7 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
 	assert(SUCCEEDED(hr));
 
+	// RoorSignatureを生成する
 	SetUpRootSignature();
 
 	//InputLayout
@@ -128,8 +97,10 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	pixelShaderBlob = SetUpCompileShader(L"Object3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(pixelShaderBlob != nullptr);
 
+	// PSOを生成する
 	SetUpPSO();
 
+	// VertexResourceを生成する
 	SetUpVertexResource();
 
 	
@@ -138,7 +109,7 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	//使用するリソースのサイズは頂点3つ分のサイズ
 	vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
 	//1頂点当たりのサイズ
-	vertexBufferView.SizeInBytes = sizeof(Vector4);
+	vertexBufferView.StrideInBytes = sizeof(Vector4);
 
 	//頂点リソースにデータを書き込む
 	Vector4* vertexData = nullptr;
@@ -172,6 +143,7 @@ void DirectXCommon::Upadate()
 	
 }
 
+//描画前
 void DirectXCommon::PreDraw()
 {
 	//これから書き込むバックバッファのindexを取得
@@ -188,7 +160,7 @@ void DirectXCommon::PreDraw()
 	//遷移後のResourceState
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	//TransitionBarrierを張る
-	commandList->ResourceBarrier(1, &barrier);
+     commandList->ResourceBarrier(1, &barrier);
 
 	//描画先のRTVを設定する
 	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
@@ -209,9 +181,9 @@ void DirectXCommon::PreDraw()
 	
 }
 
+//描画後
 void DirectXCommon::PostDraw()
 {
-
 	//画面に描く処理は全て終わり、画面に移すので、状態遷移
 	//今回はRenderTargetからPresentにする
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -252,6 +224,7 @@ void DirectXCommon::PostDraw()
 
 }
 
+// DXGIFactoryの生成
 void DirectXCommon::SetUpDXGIFactory()
 {
 	//HRESULTはWindows系のエラーコードであり、
@@ -260,8 +233,28 @@ void DirectXCommon::SetUpDXGIFactory()
 	//初期化の根本的な部分でエラーが出た場合はプログラムが間違っているか、
 	//どうにもできない場合が多いのでassertにしておく
 	assert(SUCCEEDED(hr));
+
+	//使用するアダプタ(GPU)を決定する
+	//良い順にアダプタを頼む
+	for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) != DXGI_ERROR_NOT_FOUND; i++) {
+		//アダプターの情報を取得する
+		DXGI_ADAPTER_DESC3 adapterDesc{};
+		hr = useAdapter->GetDesc3(&adapterDesc);
+		assert(SUCCEEDED(hr));//取得できないのは一大事
+		//ソフトウェアアダプタでなければ採用!
+		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
+			//採用したアダプタの情報をログに出力。wstringの方なので注意
+			Log(ConvertString(std::format(L"Use Adapater:{}\n", adapterDesc.Description)));
+
+			break;
+		}
+		useAdapter = nullptr;//ソフトウェアアダプタの場合は見なかったことにする
+	}
+	//適切なアダプタが見つからなかったので起動できない
+	assert(useAdapter != nullptr);
 }
 
+// D3D12Deviceの生成
 void DirectXCommon::SetUpD3D12Device()
 {
 	//機能レベルとログ出力用の文字列
@@ -318,7 +311,7 @@ void DirectXCommon::SetUpD3D12Device()
 }
 
 
-
+// CommandQueueを生成する
 void DirectXCommon::SetUpCommandQueue()
 {
 	//コマンドキューを生成する
@@ -329,6 +322,7 @@ void DirectXCommon::SetUpCommandQueue()
 	assert(SUCCEEDED(hr));
 	}
 
+// CommandListを生成する
 void DirectXCommon::SetUpCommandList()
 {
 	//コマンドアロケータを生成する
@@ -344,6 +338,7 @@ void DirectXCommon::SetUpCommandList()
 	assert(SUCCEEDED(hr));
 }
 
+// SwapChainを生成する
 void DirectXCommon::SetUpSwapChain(WinApp* winApp_)
 {
 	//スワップチェーンを生成する
@@ -359,8 +354,15 @@ void DirectXCommon::SetUpSwapChain(WinApp* winApp_)
 	//コマンドキュー、ウィンドウハンドル、設定を渡して生成する
 	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, winApp_->GetHWND(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&swapChain));
 	assert(SUCCEEDED(hr));
+
+	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&swapChainResources[0]));
+	//うまく取得できなければ起動できない
+	assert(SUCCEEDED(hr));
+	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
+	assert(SUCCEEDED(hr));
 }
 
+// DescriptorHeapを生成する
 void DirectXCommon::SetUpDescriptorHeap()
 {
 	//ディスクリプタヒープの生成
@@ -371,8 +373,23 @@ void DirectXCommon::SetUpDescriptorHeap()
 	//ディスクリプターヒープが作られなかったので起動できない
 	assert(SUCCEEDED(hr));
 
+	//RTVの設定
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2dテクスチャとして書き込む
+	//ディスクリプタの先頭を取得する
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvStarHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	//まず1つめを作る。1つめは最初のところに作る。作る場所をこちらで指定してあげる必要がある
+	rtvHandles[0] = rtvStarHandle;
+	device->CreateRenderTargetView(swapChainResources[0], &rtvDesc, rtvHandles[0]);
+	//2つ目のディスクリプタハンドルを得る(自力で)
+	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	//2つ目作る
+	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
+
 }
 
+// FenceとEventを生成する
 void DirectXCommon::SetUpFence()
 {
 	hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
@@ -383,6 +400,7 @@ void DirectXCommon::SetUpFence()
 	assert(fenceEvent != nullptr);
 }
 
+// CompileShader関数
 IDxcBlob* DirectXCommon::SetUpCompileShader(
 	//CompilerするShaderファイルへのパス
 	const std::wstring& filePath,
@@ -452,6 +470,7 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 	return shaderBlob;
 }
 
+// RoorSignatureを生成する
 void DirectXCommon::SetUpRootSignature()
 {
 	//RootSignature作成
@@ -468,6 +487,7 @@ void DirectXCommon::SetUpRootSignature()
 
 }
 
+// PSOを生成する
 void DirectXCommon::SetUpPSO()
 {
 	graphicsPipelineStateDesc.pRootSignature = rootSignature;//RootSignature
@@ -489,6 +509,7 @@ void DirectXCommon::SetUpPSO()
 	assert(SUCCEEDED(hr));
 }
 
+// VertexResourceを生成する
 void DirectXCommon::SetUpVertexResource()
 {
 	//頂点リソース用のヒープの設定

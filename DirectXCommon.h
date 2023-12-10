@@ -7,6 +7,7 @@
 #include"WinApp.h"
 #include<dxcapi.h>
 #include"MyMath.h"
+#include"Triangle.h"
 
 #pragma comment(lib,"dxcompiler.lib")
 
@@ -76,7 +77,7 @@ private:
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	IDxcBlob* vertexShaderBlob;
 	IDxcBlob* pixelShaderBlob;
-	//実際に頂点リソースを作る
+	////実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	ID3D12PipelineState* graphicsPipelineState = nullptr;
@@ -86,7 +87,6 @@ private:
 	D3D12_RECT scissorRect{};
 	//頂点バッファービューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-
 
 private:
 	/// <summary>
@@ -139,7 +139,7 @@ private:
 	void SetUpPSO();
 	/// <summary>
 	/// VertexResourceを生成する
-	/// </summary>
+	///</summary>
 	void SetUpVertexResource();
 };
 
