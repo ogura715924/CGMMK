@@ -470,7 +470,6 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 	return shaderBlob;
 }
 
-// RoorSignatureを生成する
 void DirectXCommon::SetUpRootSignature()
 {
 	//RootSignature作成
