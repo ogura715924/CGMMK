@@ -9,6 +9,8 @@
 #include"MyMath.h"
 
 #pragma comment(lib,"dxcompiler.lib")
+#pragma comment(lib,"d3d12.lib")
+#pragma comment(lib,"dxgi.lib")
 
 class DirectXCommon
 {
@@ -76,17 +78,10 @@ private:
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	IDxcBlob* vertexShaderBlob;
 	IDxcBlob* pixelShaderBlob;
-	//実際に頂点リソースを作る
-	ID3D12Resource* vertexResource;
+	
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	ID3D12PipelineState* graphicsPipelineState = nullptr;
-	//ビューポート
-	D3D12_VIEWPORT viewport{};
-	//シザー短形
-	D3D12_RECT scissorRect{};
-	//頂点バッファービューを作成する
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-
+	
 
 private:
 	/// <summary>
@@ -140,6 +135,6 @@ private:
 	/// <summary>
 	/// VertexResourceを生成する
 	/// </summary>
-	void SetUpVertexResource();
+	//void SetUpVertexResource();
 };
 
