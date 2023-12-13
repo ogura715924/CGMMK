@@ -25,6 +25,7 @@ public:
 	//描画後
 	void PostDraw();
 
+
 private:
 	//SwapChainからResourceを引っ張ってくる
 	ID3D12Resource* swapChainResources[2] = { nullptr };
@@ -136,5 +137,6 @@ private:
 	/// VertexResourceを生成する
 	/// </summary>
 	//void SetUpVertexResource();
-};
+
+	};
 

@@ -1,9 +1,6 @@
 #include "DirectXCommon.h"
 #include"Logger.h"
 
-
-
-
 DirectXCommon::DirectXCommon()
 {
 }
@@ -151,11 +148,16 @@ void DirectXCommon::PreDraw()
 	//TransitionBarrierを張る
 	commandList->ResourceBarrier(1, &barrier);
 
+
 	//描画先のRTVを設定する
 	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
 	//指定した色で画面全体をクリアする
 	float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
 	commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);	
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(rootSignature);
+	commandList->SetPipelineState(graphicsPipelineState);//PSPを設定
 }
 
 void DirectXCommon::PostDraw()
@@ -438,6 +440,8 @@ void DirectXCommon::SetUpPSO()
 	assert(SUCCEEDED(hr));
 }
 
+
+
 //void DirectXCommon::SetUpVertexResource()
 //{
 //	//頂点リソース用のヒープの設定
@@ -461,7 +465,4 @@ void DirectXCommon::SetUpPSO()
 //	&vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 //    IID_PPV_ARGS(&vertexResource));
 //	assert(SUCCEEDED(hr));
-//
-//
-//}
-// 
+// }

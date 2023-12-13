@@ -9,7 +9,6 @@ Triangle::~Triangle()
 	vertexResource->Release();
 	commandList->Release();
 	device->Release();
-	graphicsPipelineState->Release();
 }
 
 void Triangle::Initialize(WinApp*winApp_)
@@ -65,12 +64,12 @@ void Triangle::Update()
 }
 void Triangle::PreDraw()
 {
-	
+
 	commandList->RSSetViewports(1, &viewport);//Viewportを設定
 	commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
-	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList->SetGraphicsRootSignature(rootSignature);
-	commandList->SetPipelineState(graphicsPipelineState);//PSPを設定
+	////RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	//commandList->SetGraphicsRootSignature(rootSignature);
+	//commandList->SetPipelineState(graphicsPipelineState);//PSPを設定
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定する考えておけばいい
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

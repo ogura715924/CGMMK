@@ -37,9 +37,6 @@ private:
 	D3D12_VIEWPORT viewport{};
 	//シザー短形
 	D3D12_RECT scissorRect{};
-	//バイナリを基に作成
-	ID3D12RootSignature* rootSignature = nullptr;
-	ID3D12PipelineState* graphicsPipelineState = nullptr;
 	//コマンドアロケータを生成する
 	ID3D12CommandAllocator* commandAllocator;
 	HRESULT hr;
