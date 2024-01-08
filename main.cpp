@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		directXCommand_->PreDraw();
 		directXCommand_->PostDraw();
 
-		triangle_->PreDraw();
+	triangle_->PreDraw();
 		triangle_->PostDraw();
 	}
 	delete winApp_;

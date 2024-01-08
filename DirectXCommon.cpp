@@ -28,8 +28,7 @@ DirectXCommon::~DirectXCommon()
 	rootSignature->Release();
 	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
-
-	
+	commandList->Release();
 }
 
 void DirectXCommon::Initialize(WinApp* winApp_)

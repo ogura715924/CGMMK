@@ -57,6 +57,7 @@ void Triangle::Initialize(WinApp*winApp_)
 	scissorRect.right = winApp_->kClientWidth;
 	scissorRect.top = 0;
 	scissorRect.bottom = winApp_->kClientHeight;
+
 }
 
 void Triangle::Update()
@@ -79,6 +80,8 @@ void Triangle::PreDraw()
 
 void Triangle::PostDraw()
 {
+	// コマンドリストを解除
+//	Triangle::commandList = nullptr;
 }
 
 void Triangle::SetUpD3D12Device()
