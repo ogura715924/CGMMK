@@ -7,6 +7,7 @@
 #include <dxgi1_6.h>
 #include "Logger.h"
 #include <format>
+#include <dxcapi.h>
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -41,6 +42,25 @@ private:
 	ID3D12CommandAllocator* commandAllocator;
 	HRESULT hr;
 	ID3D12Device* device = nullptr;
+	//RasiterzerStateの設定
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
+	IDxcBlob* vertexShaderBlob;
+	IDxcBlob* pixelShaderBlob;
+	// //hlslファイルを読む
+	IDxcBlobEncoding* shaderSource = nullptr;
+	IDxcUtils* dxcUtils = nullptr;
+	IDxcCompiler3* dxcCompiler = nullptr;
+	IDxcIncludeHandler* includeHandler;
+	//実際にShaderをコンパイルする
+	IDxcResult* shaderResult = nullptr;
+	//警告・エラーが出たらログに出して止める
+	IDxcBlobUtf8* shaderError = nullptr;
+	//コンパイル結果から実行用のバイナリ部分を取得
+	IDxcBlob* shaderBlob = nullptr;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+	//バイナリを基に作成
+	ID3D12RootSignature* rootSignature = nullptr;
+	
 
 public:
 	/// <summary>
@@ -55,6 +75,17 @@ public:
 	/// VertexResourceを生成する
 	/// </summary>
 	void SetUpVertexResource();
-
+	/// <summary>
+/// CompileShader関数
+/// </summary>
+	IDxcBlob* SetUpCompileShader(
+		//CompilerするShaderファイルへのパス
+		const std::wstring& filePath,
+		//Compilerに使用するProfile
+		const wchar_t* profile,
+		//初期化で生成したものを3つ
+		IDxcUtils* dxcUtils,
+		IDxcCompiler3* dxcCompiler,
+		IDxcIncludeHandler* includeHandler);
 };
 
