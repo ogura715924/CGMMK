@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include <format>
 #include <dxcapi.h>
+#include"DirectXCommon.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -33,7 +34,6 @@ private:
 	ID3D12Resource* vertexResource;
 	//頂点バッファービューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-	ID3D12GraphicsCommandList* commandList;
 	//ビューポート
 	D3D12_VIEWPORT viewport{};
 	//シザー短形
@@ -41,7 +41,6 @@ private:
 	//コマンドアロケータを生成する
 	ID3D12CommandAllocator* commandAllocator;
 	HRESULT hr;
-	ID3D12Device* device = nullptr;
 	//RasiterzerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	IDxcBlob* vertexShaderBlob;
@@ -62,6 +61,7 @@ private:
 	ID3D12RootSignature* rootSignature = nullptr;
 	
 
+	DirectXCommon directXCommon_;
 public:
 	/// <summary>
 	/// D3D12Deviceの生成

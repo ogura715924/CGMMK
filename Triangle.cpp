@@ -7,8 +7,8 @@ Triangle::Triangle()
 Triangle::~Triangle()
 {
 	vertexResource->Release();
-	commandList->Release();
-	device->Release();
+	directXCommon_.SetCommandlist()->Release();
+	directXCommon_.SetDevice()->Release();
 	//vertexShaderBlob->Release();
 	//rootSignature->Release();
 }
@@ -18,7 +18,7 @@ void Triangle::Initialize(WinApp*winApp_)
 	hr = D3D12CreateDevice(
 		nullptr,             // アダプタを指定する場合はIDXGIAdapterのポインタ
 		D3D_FEATURE_LEVEL_11_0, // 最低限必要な機能レベル
-		IID_PPV_ARGS(&device) // 作成されたデバイスのアドレスを受け取る
+		IID_PPV_ARGS(&directXCommon_.SetDevice())// 作成されたデバイスのアドレスを受け取る
 	);
 	if (FAILED(hr)) {
 		// エラー処理
@@ -79,16 +79,16 @@ void Triangle::Update()
 void Triangle::PreDraw()
 {
 
-	commandList->RSSetViewports(1, &viewport);//Viewportを設定
-	commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
+	directXCommon_.SetCommandlist()->RSSetViewports(1, &viewport);//Viewportを設定
+	directXCommon_.SetCommandlist()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
 	////RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	//commandList->SetGraphicsRootSignature(rootSignature);
 	//commandList->SetPipelineState(graphicsPipelineState);//PSPを設定
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
+	directXCommon_.SetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定する考えておけばいい
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	directXCommon_.SetCommandlist()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//描画!(DrawCall/ドローコール。3頂点で1つのインスタンス。インスタンスについては今後
-	commandList->DrawInstanced(3, 1, 0, 0);
+	directXCommon_.SetCommandlist()->DrawInstanced(3, 1, 0, 0);
 }
 
 void Triangle::PostDraw()
@@ -107,7 +107,7 @@ void Triangle::SetUpD3D12Device()
 	//高い順に生成できるか試していく
 	for (size_t i = 0; i < _countof(featureLevels); ++i) {
 		//採用したアダプターでデバイス生成
-		hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&device));
+		hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&directXCommon_.SetDevice()));
 		//指定した機能レベルでデバイスが生成できたかを確認
 		if (SUCCEEDED(hr)) {
 			//生成できたのでログ出力を行ってループを抜ける
@@ -116,12 +116,12 @@ void Triangle::SetUpD3D12Device()
 		}
 	}
 	//デバイスの生成がうまくいかなかったので起動できない
-	assert(device != nullptr);
+	assert(directXCommon_.SetDevice() != nullptr);
 	Log("Complete create D3D!2Device!!!\n");//初期化完了のログを出す
 
 #ifdef _DEBUG
 	ID3D12InfoQueue* infoQueue = nullptr;
-	if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
+	if (SUCCEEDED(directXCommon_.SetDevice()->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
 		// ヤバイエラー時に止まる
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 		// エラー時に止まる
@@ -155,13 +155,13 @@ void Triangle::SetUpD3D12Device()
 void Triangle::SetUpCommandList()
 {//コマンドアロケータを生成する
 	commandAllocator = nullptr;
-	hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
+	hr = directXCommon_.SetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	//コマンドアロケータの生成がうまく行かなかったので起動できない
 	assert(SUCCEEDED(hr));
 
 	//コマンドリストを生成する
-	commandList = nullptr;
-	hr = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&commandList));
+	directXCommon_.SetCommandlist() = nullptr;
+	hr = directXCommon_.SetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&directXCommon_.SetCommandlist));
 	//コマンドリストの生成がうまくいなかったので起動できない
 	assert(SUCCEEDED(hr));
 }
@@ -186,7 +186,7 @@ void Triangle::SetUpVertexResource()
 	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//実際に頂点リソースを作る
 	 vertexResource = nullptr;
-	hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
+	hr = directXCommon_.SetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
 	&vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
     IID_PPV_ARGS(&vertexResource));
 	assert(SUCCEEDED(hr));

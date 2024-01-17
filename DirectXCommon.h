@@ -25,6 +25,9 @@ public:
 	//描画後
 	void PostDraw();
 
+public:
+	ID3D12Device* SetDevice() { return device; };
+	ID3D12GraphicsCommandList* SetCommandlist() { return commandList; };
 
 private:
 	//SwapChainからResourceを引っ張ってくる
