@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	directXCommand_->Initialize(winApp_);
 
 	Triangle* triangle_ = new Triangle;
-	triangle_->Initialize(winApp_);
+	triangle_->Initialize(winApp_,directXCommand_);
 	
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
@@ -26,12 +26,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		directXCommand_->PreDraw();
 		directXCommand_->PostDraw();
 
-	triangle_->PreDraw();
+	//triangle_->PreDraw();
 		triangle_->PostDraw();
 	}
-	delete winApp_;
-	delete directXCommand_;
 	delete triangle_;
+	delete directXCommand_;
+	delete winApp_;
 	//出力ウィンドウへの文字出力
 	OutputDebugStringA("Hello,DirectX!\n");
 

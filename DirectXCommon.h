@@ -26,9 +26,15 @@ public:
 	void PostDraw();
 
 public:
-	ID3D12Device* SetDevice() { return device; };
-	ID3D12GraphicsCommandList* SetCommandlist() { return commandList; };
+	ID3D12Device* GetDevice() { return device; };
+	ID3D12GraphicsCommandList* GetCommandlist() { return commandList; };
+	ID3D12PipelineState* GetgraphicsPipelineState() {return graphicsPipelineState;}
+	ID3D12RootSignature* GetrootSignature(){return rootSignature;}
 
+	/// <summary>
+	/// VertexResourceを生成する
+	/// </summary>
+	ID3D12Resource* CreateBufferResorce(ID3D12Device* device, size_t sizeInBytes);
 private:
 	//SwapChainからResourceを引っ張ってくる
 	ID3D12Resource* swapChainResources[2] = { nullptr };
@@ -86,6 +92,9 @@ private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	ID3D12PipelineState* graphicsPipelineState = nullptr;
 	
+	//実際に頂点リソースを作る
+	ID3D12Resource* vertexResource;
+
 
 private:
 	/// <summary>
@@ -136,10 +145,7 @@ private:
 	/// PSOを生成する
 	/// </summary>
 	void SetUpPSO();
-	/// <summary>
-	/// VertexResourceを生成する
-	/// </summary>
-	//void SetUpVertexResource();
+	
 
 	};
 
