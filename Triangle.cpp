@@ -39,7 +39,7 @@ void Triangle::Initialize(WinApp*winApp_, DirectXCommon* directXCommon)
 	////裏面(時計回り)を表示しない
 	//rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 	////三角形の中を塗りつぶす
-	//rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//頂点リソースにデータを書き込む
 	Vector4* vertexData = nullptr;
@@ -84,8 +84,8 @@ void Triangle::PreDraw()
 	directXCommon_->GetCommandlist()->RSSetViewports(1, &viewport);//Viewportを設定
 	directXCommon_->GetCommandlist()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
 	////RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	directXCommon_->GetCommandlist()->SetGraphicsRootSignature(directXCommon_->GetrootSignature());
-	directXCommon_->GetCommandlist()->SetPipelineState(directXCommon_->GetgraphicsPipelineState());//PSPを設定
+	//directXCommon_->GetCommandlist()->SetGraphicsRootSignature(directXCommon_->GetrootSignature());
+	//directXCommon_->GetCommandlist()->SetPipelineState(directXCommon_->GetgraphicsPipelineState());//PSPを設定
 	directXCommon_->GetCommandlist()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定する考えておけばいい
 	directXCommon_->GetCommandlist()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

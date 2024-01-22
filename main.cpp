@@ -24,9 +24,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ウィンドウの×ボタンが押されるまでループ
 	while (winApp_->ProcessMessage() == false) {
 		directXCommand_->PreDraw();
+		triangle_->PreDraw();
 		directXCommand_->PostDraw();
-
-	//triangle_->PreDraw();
 		triangle_->PostDraw();
 	}
 	delete triangle_;

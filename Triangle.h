@@ -42,7 +42,7 @@ private:
 	//ID3D12CommandAllocator* commandAllocator;
 	//HRESULT hr;
 	//RasiterzerStateの設定
-	//D3D12_RASTERIZER_DESC rasterizerDesc{};
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	//IDxcBlob* vertexShaderBlob;
 	//IDxcBlob* pixelShaderBlob;
 	// //hlslファイルを読む
