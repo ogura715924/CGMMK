@@ -12,13 +12,12 @@
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
-
-class Triangle
+class Shape
 {
 public:
-	~Triangle();
+	~Shape();
 
-	void Initialize(WinApp* winApp_,DirectXCommon* directXCommon);
+	void Initialize(WinApp* winApp_, DirectXCommon* directXCommon);
 	void Update();
 
 	//描画前
@@ -26,7 +25,7 @@ public:
 	//描画後
 	void PostDraw();
 
-	
+
 private:
 	//実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
@@ -38,7 +37,6 @@ private:
 	D3D12_RECT scissorRect{};
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	
-
 
 	DirectXCommon* directXCommon_;
 public:

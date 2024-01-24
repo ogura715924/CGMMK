@@ -84,6 +84,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyMath.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="WinApp.cpp" />
   </ItemGroup>
@@ -91,6 +92,7 @@
     <ClInclude Include="DirectXCommon.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MyMath.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="WinApp.h" />
   </ItemGroup>

@@ -1,16 +1,17 @@
-#include "Triangle.h"
+#include "Shape.h"
 
-//Triangle::Triangle()
-//{
-//}
-
-Triangle::~Triangle()
+Shape::~Shape()
 {
 	vertexResource->Release();
 }
 
-void Triangle::Initialize(WinApp*winApp_, DirectXCommon* directXCommon)
+void Shape::Initialize(WinApp* winApp_, DirectXCommon* directXCommon)
 {
+	const uint32_t kSubdivision = 16;//分割数
+	const uint32_t kVertexCount = kSubdivision * kSubdivision * 6;//球体頂点数
+
+	
+
 	assert(directXCommon);
 	directXCommon_ = directXCommon;
 	vertexResource = directXCommon->CreateBufferResorce(directXCommon->GetDevice(), sizeof(Vector4) * 3);
@@ -21,7 +22,7 @@ void Triangle::Initialize(WinApp*winApp_, DirectXCommon* directXCommon)
 	vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
 	//1頂点当たりのサイズ
 	vertexBufferView.StrideInBytes = sizeof(Vector4);
-//三角形の中を塗りつぶす
+	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//頂点リソースにデータを書き込む
@@ -50,12 +51,14 @@ void Triangle::Initialize(WinApp*winApp_, DirectXCommon* directXCommon)
 	scissorRect.top = 0;
 	scissorRect.bottom = winApp_->kClientHeight;
 
+	ID3D12Resource* vertexResorce = CreateBufferResorce(directXCommon_->GetDevice(), sizeof(vertexData) * kVertexCount);
+	vertexBufferView.SizeInBytes = UINT(sizeof(vertexData) * kVertexCount) * kVertexCount);
 }
 
-void Triangle::Update()
+void Shape::Update()
 {
 }
-void Triangle::PreDraw()
+void Shape::PreDraw()
 {
 
 	directXCommon_->GetCommandlist()->RSSetViewports(1, &viewport);//Viewportを設定
@@ -67,6 +70,6 @@ void Triangle::PreDraw()
 	directXCommon_->GetCommandlist()->DrawInstanced(3, 1, 0, 0);
 }
 
-void Triangle::PostDraw()
+void Shape::PostDraw()
 {
 }
