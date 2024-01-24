@@ -95,6 +95,22 @@ private:
 	//実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
 
+	enum BlendMode {
+		//ブレンド無し
+		kBlendModeNone,
+		//通常aブレンド。デフォルト。Src*SrcA+Dest*(1-SrcA)
+		kBlendModeNormal,
+		//加算。Src*SrcA+Dest*1
+		kBlendModeAdd,
+		//減算。Dest*1-Src*SrcA
+		kBlendModeSubtract,
+		//乗算。Src*0+Dest*Src
+		kBlendModeMultily,
+		//スクリーン。Src*(1-Dest)Dest*1
+		kBlendModeScreen,
+		//利用してはいけない
+		kCount0fBlendMode,
+	};
 
 private:
 	/// <summary>
