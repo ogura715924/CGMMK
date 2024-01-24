@@ -15,6 +15,10 @@ struct Vector3 {
 	float x, y, z;
 };
 
+struct Vector2 {
+	float x, y;
+};
+
 struct Transform {
 	Vector3 scale;
 	Vector3 rotate;

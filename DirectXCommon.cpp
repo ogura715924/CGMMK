@@ -129,6 +129,9 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	assert(pixelShaderBlob != nullptr);
 
 	SetUpPSO();
+
+	//球体優先するため一度中断沢山のいたポリのところのp4
+	//modelData.vertices.push_back({ .position = {1.0f,1.0f,0.0f,1.0f},.texcord = {0.0f,0.0f},.normal = {0.0f,0.0f,1.0f} });//左上
 };
 
 void DirectXCommon::Upadate()

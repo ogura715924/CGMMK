@@ -7,10 +7,38 @@
 #include"WinApp.h"
 #include<dxcapi.h>
 #include"MyMath.h"
+#include<vector>
 
 #pragma comment(lib,"dxcompiler.lib")
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
+
+enum BlendMode {
+	//ブレンド無し
+	kBlendModeNone,
+	//通常aブレンド。デフォルト。Src*SrcA+Dest*(1-SrcA)
+	kBlendModeNormal,
+	//加算。Src*SrcA+Dest*1
+	kBlendModeAdd,
+	//減算。Dest*1-Src*SrcA
+	kBlendModeSubtract,
+	//乗算。Src*0+Dest*Src
+	kBlendModeMultily,
+	//スクリーン。Src*(1-Dest)Dest*1
+	kBlendModeScreen,
+	//利用してはいけない
+	kCount0fBlendMode,
+};
+
+struct VertexData {
+	Vector4 position;
+	Vector2 texcord;
+	Vector3 normal;
+};
+
+struct ModelData {
+	std::vector<VertexData>vertices;
+};
 
 class DirectXCommon
 {
@@ -95,22 +123,7 @@ private:
 	//実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
 
-	enum BlendMode {
-		//ブレンド無し
-		kBlendModeNone,
-		//通常aブレンド。デフォルト。Src*SrcA+Dest*(1-SrcA)
-		kBlendModeNormal,
-		//加算。Src*SrcA+Dest*1
-		kBlendModeAdd,
-		//減算。Dest*1-Src*SrcA
-		kBlendModeSubtract,
-		//乗算。Src*0+Dest*Src
-		kBlendModeMultily,
-		//スクリーン。Src*(1-Dest)Dest*1
-		kBlendModeScreen,
-		//利用してはいけない
-		kCount0fBlendMode,
-	};
+	ModelData modelData;
 
 private:
 	/// <summary>
