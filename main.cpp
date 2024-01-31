@@ -5,6 +5,7 @@
 #include"DirectXCommon.h"
 #include<dxgidebug.h>
 #include "Triangle.h"
+#include "Shape.h"
 #pragma comment(lib,"dxguid.lib")
 
 
@@ -20,15 +21,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Triangle* triangle_ = new Triangle;
 	triangle_->Initialize(winApp_,directXCommand_);
 	
+	Shape* shape_ = new Shape;
+	shape_->Initialize(winApp_, directXCommand_);
+
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
 	while (winApp_->ProcessMessage() == false) {
 		directXCommand_->PreDraw();
-		triangle_->PreDraw();
+		//triangle_->PreDraw();
+		shape_->PreDraw();
 		directXCommand_->PostDraw();
-		triangle_->PostDraw();
+		//triangle_->PostDraw();
+		shape_->PostDraw();
 	}
-	delete triangle_;
+	delete shape_;
+	//delete triangle_;
 	delete directXCommand_;
 	delete winApp_;
 	//出力ウィンドウへの文字出力

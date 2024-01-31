@@ -4,7 +4,7 @@ const struct Vector4 {
 	float x;
 	float y;
 	float z;
-	float Semantics;
+	float w;
 };
 
 struct Matrix4x4 {
@@ -15,12 +15,20 @@ struct Vector3 {
 	float x, y, z;
 };
 
+struct Vector2 {
+	float x, y;
+};
+
 struct Transform {
 	Vector3 scale;
 	Vector3 rotate;
 	Vector3 translate;
 };
 
+struct VertexData{
+	Vector4 position;
+	Vector2 texcord;
+};
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 

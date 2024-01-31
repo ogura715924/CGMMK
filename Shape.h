@@ -36,7 +36,8 @@ private:
 	//シザー短形
 	D3D12_RECT scissorRect{};
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	
+	const uint32_t kSubdivision = 16;//分割数
+	const uint32_t kVertexCount = kSubdivision * kSubdivision * 6;//球体頂点数
 
 	DirectXCommon* directXCommon_;
 public:
