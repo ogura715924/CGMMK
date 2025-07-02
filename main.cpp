@@ -9,7 +9,7 @@
 #pragma comment(lib,"dxguid.lib")
 
 
-// Windowsアプリでのエントリーポイント（main関数）
+//Windowsアプリでのエントリーポイント（main関数）
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	WinApp* winApp_ = new WinApp;

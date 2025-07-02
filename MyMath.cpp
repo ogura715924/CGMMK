@@ -285,7 +285,7 @@ Matrix4x4 MakeViewportMatrix(
 		    return viewport;
 	    };
 }
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
+Vector3 Transformu(const Vector3& vector, const Matrix4x4& matrix) {
 	    {
 
 		    Vector3 result;

@@ -109,6 +109,13 @@ private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	ID3D12PipelineState* graphicsPipelineState = nullptr;
 	
+	struct CameraForGPU {
+		Vector3 worldPosiotion;
+	};
+
+
+	ID3D12Resource* cameraResource;
+
 	//実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
 private:

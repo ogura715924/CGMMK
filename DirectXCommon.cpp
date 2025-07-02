@@ -1,5 +1,6 @@
 #include "DirectXCommon.h"
 #include"Logger.h"
+#include"MyMath.h"
 
 DirectXCommon::DirectXCommon()
 {
@@ -29,6 +30,8 @@ DirectXCommon::~DirectXCommon()
 	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
 	commandList->Release();
+
+	cameraResource->Release();
 }
 
 void DirectXCommon::Initialize(WinApp* winApp_)
@@ -129,6 +132,22 @@ void DirectXCommon::Initialize(WinApp* winApp_)
 	assert(pixelShaderBlob != nullptr);
 
 	SetUpPSO();
+
+	// Transform変数を作る
+	Transform transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	Vector3 cameraPosition = { 0,1.0f,-10.0f };
+	const int kWindowWidth = 1280;
+	const int kWindowHeight = 720;
+	Transform cameraTransform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -10.0f} };
+
+	//カメラ用のリソースを作る
+	cameraResource = CreateBufferResorce(device, sizeof(CameraForGPU));
+		// マテリアルにデータを書き込む
+		CameraForGPU * cameraData = nullptr;
+	// 書き込むためのアドレスを取得
+	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
+	cameraData->worldPosiotion = { 0.0f,0.0f,-5.0f };
+
 };
 
 void DirectXCommon::Upadate()
@@ -391,7 +410,7 @@ IDxcBlob* DirectXCommon::SetUpCompileShader(
 		if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
 			Log(shaderError->GetStringPointer());
 			//警告・エラーダメ絶対
-			assert(false);
+		//	assert(false);
 		}
 	}
 

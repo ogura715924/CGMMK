@@ -27,6 +27,12 @@ public:
 
 
 private:
+
+	struct VertexData {
+		Vector4 position;
+		Vector2 texcoord;
+	};
+
 	//実際に頂点リソースを作る
 	ID3D12Resource* vertexResource;
 	//頂点バッファービューを作成する
@@ -38,7 +44,7 @@ private:
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	const uint32_t kSubdivision = 16;//分割数
 	const uint32_t kVertexCount = kSubdivision * kSubdivision * 6;//球体頂点数
-
+	
 	DirectXCommon* directXCommon_;
 public:
 };
